@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+langchain
+pinecone
+langchain_groq
+langchain_community
+sentence_transformers
