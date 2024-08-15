@@ -7,7 +7,7 @@ from langchain.chains import RetrievalQA
 
 # Create embeddings using HuggingFace
 from langchain_community.embeddings import HuggingFaceEmbeddings
-model_path = "./all-MiniLM-L6-v2"
+model_path = "sentence-transformers/all-MiniLM-L6-v2"
 model_kwargs = {'device':'cpu'}
 encode_kwargs = {'normalize_embeddings':False}
 embeddings = HuggingFaceEmbeddings(
