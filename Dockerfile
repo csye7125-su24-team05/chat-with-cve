@@ -3,7 +3,7 @@ FROM python:3.10-slim AS build
 
 # Install Dependencies 
 
-# hadolint ignore=DL3015 ignore=DL3008
+# hadolint ignore=DL3015,DL3008
 RUN apt-get update && apt-get -y install libpq-dev gcc
 # halolint ignore=DL3045
 COPY ./requirements.txt requirements.txt
