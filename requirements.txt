@@ -1,0 +1,7 @@
+langchain
+pinecone
+langchain_community
+sentence_transformers
+langchain-huggingface
+jq
+streamlit
