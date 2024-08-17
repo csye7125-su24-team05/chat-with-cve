@@ -5,7 +5,7 @@ FROM python:3.10-slim AS build
 
 # hadolint ignore=DL3015,DL3008
 RUN apt-get update && apt-get -y install libpq-dev gcc
-# halolint ignore=DL3045
+# hadolint ignore=DL3045
 COPY ./requirements.txt requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
 
