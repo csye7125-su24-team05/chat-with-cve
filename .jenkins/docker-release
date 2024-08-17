@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_IMAGE = 'nexflare73/chat-wtih-cve'
+        RANDOM_STRING = ''
+    }
+    stages {
+        stage('Docker Init') {
+            steps {
+                script {
+                    RANDOM_STRING = RandomStringGenerator.generate(10)
+                    echo "Generated random string: ${RANDOM_STRING}"
+                }
+
+                withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    echo 'Initializing...'
+                    sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    sh "docker buildx create --name ${RANDOM_STRING} --driver=docker-container --use"
+                }   
+            }
+        }
+
+        stage('Release') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GITHUB_USERNAME', passwordVariable: 'GITHUB_TOKEN')]) {
+                    script {
+                        sh 'npx semantic-release'
+                    }
+                    
+                }
+            }
+        }
+
+        stage('Build and push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    script {
+                        def version = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
+                        sh "docker buildx build --platform linux/amd64,linux/arm64 -t ${DOCKER_IMAGE}:${version} -t ${DOCKER_IMAGE}:latest --builder ${RANDOM_STRING} --push ."
+                    }
+                    
+                }
+            }
+        }
+    }
+    post {
+        always {
+            // Cleanup
+            sh "docker buildx rm ${RANDOM_STRING} -f"
+            cleanWs()
+        }
+    }
+}
+
+// Groovy class for generating random strings
+class RandomStringGenerator {
+    static String generate(int length) {
+        def charset = ('A'..'Z') + ('a'..'z')
+        def random = new Random()
+        return (1..length).collect { charset[random.nextInt(charset.size())] }.join('')
+    }
+}

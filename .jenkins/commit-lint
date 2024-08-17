@@ -1,0 +1,19 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Validate Commit Message') {
+            steps {
+                script {
+                    sh 'git log -1 --pretty=%B | npx commitlint --verbose --config /etc/jenkins/commitlint.config.js'
+                }
+            }
+        }
+    }
+    post {
+        always {
+            // Cleanup
+            cleanWs()
+        }
+    }
+}

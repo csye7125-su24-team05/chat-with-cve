@@ -1,0 +1,21 @@
+pipeline {
+  agent any
+
+  stages {
+    stage('Docker Validation') {
+      agent {
+        docker { image 'hadolint/hadolint:latest-alpine' }
+      }
+      steps {
+        // Execute the Docker validation commands
+        sh 'hadolint Dockerfile'
+      }
+    }
+  }
+  post {
+    always {
+      // Cleanup
+      cleanWs()
+    }
+  }
+}
